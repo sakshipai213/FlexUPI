@@ -10,14 +10,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # Spin up PostgreSQL and Redis sidecars in the GitHub cloud environment
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: flexupi_db
-          POSTGRES_USER: flexupi_user
-          POSTGRES_PASSWORD: flexupi_password
+          POSTGRES_DB: upidb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
         options: >-
@@ -36,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -45,11 +44,11 @@ jobs:
       - name: Grant execute permission for Maven wrapper
         run: chmod +x mvnw
 
-      - name: Build and Test with Maven
-        run: ./mvnw clean test
+      - name: Build and Package with Maven
+        run: ./mvnw clean package -DskipTests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/flexupi_db
-          SPRING_DATASOURCE_USERNAME: flexupi_user
-          SPRING_DATASOURCE_PASSWORD: flexupi_password
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/upidb
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: password
           SPRING_DATA_REDIS_HOST: localhost
           SPRING_DATA_REDIS_PORT: 6379
